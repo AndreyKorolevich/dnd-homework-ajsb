@@ -1,3 +1,4 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/ocwo277cccl25w3t?svg=true)](https://ci.appveyor.com/project/AndreyKorolevich/dnd-homework-ajsb)
 Правила сдачи задания:
 
 1. **Важно**: в рамках этого ДЗ нужно использовать yarn (поэтому файла `package-lock.json` в репозитории быть не должно)

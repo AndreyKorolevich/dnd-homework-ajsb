@@ -11,6 +11,10 @@
   padding: 15px;
 }
 
+h4{
+  margin: 0;
+}
+
 .block {
   border: 1px solid wheat;
   width: 32%;
@@ -32,6 +36,11 @@
   margin-bottom: 5px;
 }
 
+.tasks {
+  padding-top: 15px;
+  padding-bottom: 10px;
+  min-height: 30px;
+}
 
 .delete-task {
   display: none;
@@ -64,7 +73,7 @@
   min-height: 50px;
   padding: 5px;
   box-sizing: border-box;
-  font: 1em "Fira Sans", serif
+  font: 1em "Fira Sans", serif;
 }
 
 .dragged {

@@ -7,12 +7,13 @@ export default class View {
     this.draggedEl = null;
     this.ghostEl = null;
     this.board = null;
+    this.shiftX = null;
+    this.shiftY = null;
     this.addListenerShowAndDel = this.addListenerShowAndDel.bind(this);
     this.addListenerAddCard = this.addListenerAddCard.bind(this);
     this.listener = this.listener.bind(this);
     this.addListenerDnd = this.addListenerDnd.bind(this);
     this.down = this.down.bind(this);
-    this.onDrag = this.onDrag.bind(this);
     this.move = this.move.bind(this);
     this.up = this.up.bind(this);
   }
@@ -28,11 +29,21 @@ export default class View {
     if (!this.draggedEl) {
       return;
     }
-    const closest = document.elementFromPoint(event.clientX, event.clientY);
-    event.currentTarget.insertBefore(this.draggedEl, closest);
-    document.body.removeChild(this.ghostEl);
-    this.ghostEl = null;
-    this.draggedEl = null;
+    const area = document.elementFromPoint(event.clientX, event.clientY);
+    if (area.classList.contains('tasks') || area.closest('.tasks')) {
+      area.closest('.tasks').appendChild(this.draggedEl);
+      this.draggedEl.style.cursor = 'auto';
+      this.draggedEl.classList.remove('dragged');
+      this.draggedEl = null;
+      this.shiftX = null;
+      this.shiftY = null;
+    } else {
+      this.draggedEl.classList.remove('dragged');
+      this.draggedEl.style.cursor = 'auto';
+      this.draggedEl = null;
+      this.shiftX = null;
+      this.shiftY = null;
+    }
   }
 
   move(event) {
@@ -40,24 +51,36 @@ export default class View {
     if (!this.draggedEl) {
       return;
     }
-    this.onDrag(event);
+    this.draggedEl.style.left = `${event.pageX - this.shiftX}px`;
+    this.draggedEl.style.top = `${event.pageY - this.shiftY}px`;
+    this.draggedEl.style.cursor = 'grabbing';
+  }
+  /* eslint-disable */
+  getCoords(elem) {
+    const box = elem.getBoundingClientRect();
+    return {
+      top: box.top + pageYOffset,
+      left: box.left + pageXOffset,
+    };
   }
 
   down(event) {
     event.preventDefault();
-    if (!event.target.classList.contains('task')) {
+    if (event.target.classList.contains('textarea')) {
+      event.target.focus();
+      return;
+    } if (!event.target.classList.contains('task')) {
       return;
     }
     this.draggedEl = event.target;
-    this.ghostEl = event.target.cloneNode(true);
-    this.ghostEl.classList.add('dragged');
-    this.board.appendChild(this.ghostEl);
-    this.onDrag(event);
-  }
 
-  onDrag(event) {
-    this.draggedEl.style.left = `${event.pageX - this.draggedEl.offsetWidth / 2}px`;
-    this.draggedEl.style.top = `${event.pageY - this.draggedEl.offsetHeight / 2}px`;
+    this.draggedEl.classList.add('dragged');
+
+    const coords = this.getCoords(this.draggedEl);
+    this.shiftX = event.pageX - coords.left;
+    this.shiftY = event.pageY - coords.top;
+    this.draggedEl.style.left = `${event.pageX - this.shiftX}px`;
+    this.draggedEl.style.top = `${event.pageY - this.shiftY}px`;
   }
 
   getMark(todo, progress, done) {
@@ -117,7 +140,7 @@ export default class View {
   }
 
   showForm(event) {
-    const {target} = event;
+    const { target } = event;
     if (target.classList.contains('new-card')) {
       const sibling = target.previousElementSibling;
       target.innerHTML = `
@@ -137,7 +160,7 @@ export default class View {
   addListenerAddCard(event) {
     if (event.target.classList.contains('button')) {
       const parent = event.target.closest('.block');
-      const {value} = parent.querySelector('.textarea');
+      const { value } = parent.querySelector('.textarea');
       this.addCard(event, value, parent);
     }
   }
